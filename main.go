@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type Account struct {
@@ -10,10 +11,50 @@ type Account struct {
 }
 
 func main() {
-	acc := Account{}
-    fmt.Println(acc.deposit(1000.0))
-	fmt.Println(acc.checkBalance())
-	acc.withdraw(500.0)
+	// var wg sync.WaitGroup
+
+	// wg.Add(1)
+
+	// go func() {
+    //    count("hello")
+	//    wg.Done()
+	// }()
+    
+    // wg.Wait()
+
+	c1 := make(chan string)
+	c2 := make(chan string)
+	
+    go func() {
+		for {
+			c1 <- "Every 500 ms"
+			time.Sleep(time.Millisecond * 500)
+		}
+	}()
+
+	go func() {
+		for {
+			c2 <- "Every two seconds"
+			time.Sleep(time.Millisecond * 2000)
+		}
+	}()
+
+	for {
+       select {
+	    case msg1 := <-c1:
+		    fmt.Println(msg1)
+		case msg2 := <-c2:
+			fmt.Println(msg2)
+	   }
+	}
+}
+
+func count(thing string, c chan string) {
+	for i := 1; i <= 5; i++ {
+		c <- thing
+		time.Sleep(time.Millisecond * 500)
+	}
+	close(c)
 }
 
 func (a *Account) deposit(amount float64) string {
